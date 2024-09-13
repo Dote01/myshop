@@ -1,141 +1,259 @@
 <?php
-session_start();
-require_once 'config.php'; // Ensure this path is correct
+require_once 'configs.php';
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve form data
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $created_at = $_POST['created_at'];
-
-    // Prepare and execute the SQL statement
-    $sql = "INSERT INTO news (admin_id, title, content, created_at) VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+function getNews($search = '', $page = 1, $limit = 10) {
+    $mysqli = getDbConnection();
     
-    // Bind parameters
-    $admin_id = $_SESSION['user_id']; // Assuming the logged-in user is the admin
-    $stmt->bind_param("isss", $admin_id, $title, $content, $created_at);
+    $offset = ($page - 1) * $limit;
+    
+    // Prepare search query if search term is provided
+    $searchQuery = "";
+    $params = [];
+    $types = "";
+    
+    if ($search) {
+        $searchTerm = '%' . $mysqli->real_escape_string($search) . '%';
+        $searchQuery = "WHERE title LIKE ? OR content LIKE ?";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $types .= "ss";
+    }
+    
+    // Fetch total count for pagination
+    $totalQuery = "SELECT COUNT(*) as total FROM news $searchQuery";
+    $totalStmt = $mysqli->prepare($totalQuery);
+    if ($search) {
+        $totalStmt->bind_param($types, ...$params);
+    }
+    $totalStmt->execute();
+    $totalResult = $totalStmt->get_result();
+    $totalRow = $totalResult->fetch_assoc();
+    $totalCount = $totalRow['total'];
+    $totalStmt->close();
 
-    if ($stmt->execute()) {
-        echo "<p>News posted successfully.</p>";
+    // Prepare main query with LIMIT and OFFSET
+    $query = "SELECT * FROM news $searchQuery ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    $stmt = $mysqli->prepare($query);
+    
+    if ($search) {
+        $params[] = $limit;
+        $params[] = $offset;
+        $types .= "ii";
+        $stmt->bind_param($types, ...$params);
     } else {
-        echo "<p>Error posting news: " . $stmt->error . "</p>";
+        $stmt->bind_param("ii", $limit, $offset);
+    }
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $news = [];
+    while ($row = $result->fetch_assoc()) {
+        $news[] = $row;
     }
 
-    // Close the statement
     $stmt->close();
+    $mysqli->close();
+    
+    return ['news' => $news, 'total' => $totalCount, 'limit' => $limit];
 }
 
-// Fetch news articles from the database
-$sql = "SELECT * FROM news ORDER BY created_at DESC";
-$result = $conn->query($sql);
+// Handle search and pagination
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = 10;
+
+$data = getNews($search, $page, $limit);
+$news = $data['news'];
+$totalCount = $data['total'];
+$limit = $data['limit'];
+$totalPages = ceil($totalCount / $limit);
 ?>
 
-<?php include 'dashboard_header.php'; ?>
-
-<!-- News Page Content -->
-<div class="news-page-container">
-    <h2>News & Announcements</h2>
-    
-    <form action="news_page.php" method="post">
-        <label for="news_title">News Title:</label>
-        <input type="text" id="news_title" name="title" required>
-        
-        <label for="news_content">Content:</label>
-        <textarea id="news_content" name="content" required></textarea>
-        
-        <label for="news_date">Date:</label>
-        <input type="date" id="news_date" name="created_at" required>
-        
-        <button type="submit">Post News</button>
-    </form>
-    
-    <h3>Recent News</h3>
-    <div class="news-list">
-        <?php
-        if ($result->num_rows > 0) {
-            while ($news = $result->fetch_assoc()) {
-                echo '<div class="news-item">';
-                echo '<h4>' . htmlspecialchars($news['title']) . '</h4>';
-                echo '<p>Date: ' . htmlspecialchars($news['created_at']) . '</p>';
-                echo '<p>' . htmlspecialchars($news['content']) . '</p>';
-                echo '</div>';
-            }
-        } else {
-            echo '<p>No news available.</p>';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Feed</title>
+    <link rel="stylesheet" href="styles.css"> <!-- External CSS for better organization -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
-        ?>
+        .container {
+            width: 90%;
+            margin: auto;
+            max-width: 1200px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .search-form {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .search-form input[type="text"] {
+            padding: 10px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .search-form input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .news-actions {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .news-actions a {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .news-actions a:hover {
+            background-color: #218838;
+        }
+        .news-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .news-item {
+            flex: 1 1 calc(33% - 20px);
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .news-item:hover {
+            transform: scale(1.02);
+        }
+        .news-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .news-title {
+            font-size: 1.6em;
+            margin: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+        .news-date {
+            color: #888;
+            margin: 0 15px;
+            font-size: 0.9em;
+        }
+        .news-content {
+            margin: 15px;
+            color: #555;
+        }
+        .actions {
+            margin: 15px;
+            text-align: right;
+        }
+        .actions a {
+            text-decoration: none;
+            color: #007BFF;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+        .actions a:hover {
+            text-decoration: underline;
+        }
+        .pagination {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .pagination a {
+            margin: 0 7px;
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 16px;
+        }
+        .pagination a:hover {
+            text-decoration: underline;
+        }
+        .pagination .active {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .pagination .disabled {
+            color: #ddd;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<?php include 'dashboard_header.php'; ?>
+<body>
+    <div class="container">
+        <div class="search-form">
+            <form method="get" action="">
+                <input type="text" name="search" placeholder="Search news..." value="<?php echo htmlspecialchars($search); ?>">
+                <input type="submit" value="Search">
+            </form>
+        </div>
+
+        <div class="news-actions">
+            <a href="add_news.php">Add News</a>
+        </div>
+
+        <div class="news-container">
+            <?php foreach ($news as $item): ?>
+                <div class="news-item">
+                    <?php if (!empty($item['image'])): ?>
+                        <img src="uploads/<?php echo htmlspecialchars($item['image']); ?>" alt="Image">
+                    <?php endif; ?>
+                    <div class="news-title"><?php echo htmlspecialchars($item['title']); ?></div>
+                    <div class="news-date">Created: <?php echo htmlspecialchars($item['created_at']); ?> | Updated: <?php echo htmlspecialchars($item['updated_at']); ?></div>
+                    <div class="news-content"><?php echo nl2br(htmlspecialchars($item['content'])); ?></div>
+                    <div class="actions">
+                        <a href="edit_news.php?id=<?php echo $item['news_id']; ?>">Edit</a>
+                        <a href="delete_news.php?id=<?php echo $item['news_id']; ?>" onclick="return confirm('Are you sure you want to delete this news item?')">Delete</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="pagination">
+            <?php if ($page > 1): ?>
+                <a href="?search=<?php echo urlencode($search); ?>&page=<?php echo $page - 1; ?>">&laquo; Previous</a>
+            <?php else: ?>
+                <span class="disabled">&laquo; Previous</span>
+            <?php endif; ?>
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="?search=<?php echo urlencode($search); ?>&page=<?php echo $i; ?>" class="<?php if ($i == $page) echo 'active'; ?>"><?php echo $i; ?></a>
+            <?php endfor; ?>
+            <?php if ($page < $totalPages): ?>
+                <a href="?search=<?php echo urlencode($search); ?>&page=<?php echo $page + 1; ?>">Next &raquo;</a>
+            <?php else: ?>
+                <span class="disabled">Next &raquo;</span>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
-
-<?php include 'dashboard_footer.php'; ?>
-
-<style>
-    .news-page-container {
-        max-width: 900px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .news-page-container h2 {
-        color: #4CAF50;
-        margin-bottom: 20px;
-    }
-
-    .news-page-container form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-
-    .news-page-container label {
-        font-weight: bold;
-    }
-
-    .news-page-container input[type="text"],
-    .news-page-container textarea,
-    .news-page-container input[type="date"] {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .news-page-container button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .news-page-container button:hover {
-        background-color: #45a049;
-    }
-
-    .news-list {
-        margin-top: 20px;
-    }
-
-    .news-item {
-        padding: 15px;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .news-item h4 {
-        margin-bottom: 5px;
-        color: #333;
-    }
-
-    .news-item p {
-        margin-bottom: 10px;
-    }
-</style>
+</body>
+</html>

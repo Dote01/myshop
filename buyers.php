@@ -1,5 +1,8 @@
 <?php
 session_start();
+echo 'User ID: ' . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'Not Set') . '<br>';
+echo 'Role: ' . (isset($_SESSION['role']) ? $_SESSION['role'] : 'Not Set') . '<br>';
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 2) { // Ensure only retailers can access this page
     header("Location: login.php");
     exit();

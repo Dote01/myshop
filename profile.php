@@ -1,6 +1,10 @@
 <?php
 session_start();
-require_once 'configs.php';
+require_once 'configss.php'; // Ensure this path is correct
+
+if (!isset($pdo)) {
+    die("PDO is not initialized.");
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -11,69 +15,124 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Fetch user data
-$sql = "SELECT username, email, profile_picture FROM users WHERE user_id = ?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$user_id]);
-$user = $stmt->fetch();
+try {
+    $sql = "SELECT username, email, profile_picture, password FROM users WHERE user_id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        die("User not found.");
+    }
+} catch (PDOException $e) {
+    die("Query failed: " . $e->getMessage());
+}
 
 // Handle profile update
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $profile_picture = $_FILES['profile_picture']['name'];
-    
-    // Profile picture upload
-    if (!empty($profile_picture)) {
-        $target_dir = "uploads/";
-        $target_file = $target_dir . basename($profile_picture);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        
-        // Check if image file is an actual image
-        $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
-        if ($check === false) {
-            $uploadOk = 0;
-            $message = "File is not an image.";
-        }
-        
-        // Check file size
-        if ($_FILES["profile_picture"]["size"] > 500000) {
-            $uploadOk = 0;
-            $message = "Sorry, your file is too large.";
-        }
-        
-        // Allow certain file formats
-        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-            $uploadOk = 0;
-            $message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-        }
-        
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            $message = "Sorry, your file was not uploaded.";
-        } else {
-            if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
-                $message = "The file ". htmlspecialchars(basename($profile_picture)). " has been uploaded.";
+    $username = $_POST['username'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $profile_picture = $_FILES['profile_picture']['name'] ?? '';
+    $current_password = $_POST['current_password'] ?? '';
+    $new_password = $_POST['new_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    $message = '';
+}
+    // Update password if provided
+    if (!empty($new_password) || !empty($confirm_password)) {
+        if (password_verify($current_password, $user['password'])) {
+            if ($new_password === $confirm_password) {
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                try {
+                    $sql = "UPDATE users SET password = ? WHERE user_id = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$hashed_password, $user_id]);
+                    $message = "Password updated successfully!";
+                } catch (PDOException $e) {
+                    $message = "Password update failed: " . $e->getMessage();
+                }
             } else {
-                $message = "Sorry, there was an error uploading your file.";
+                $message = "New passwords do not match.";
             }
+        } else {
+            $message = "Current password is incorrect.";
         }
     }
+// Profile picture upload
+if (!empty($profile_picture)) {
+    $target_dir = "uploads/";
+    $file_name = time() . "_" . basename($profile_picture); // Unique file name
+    $target_file = $target_dir . $file_name;
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     
-    // Update query
+    // Check if image file is an actual image
+    $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
+    if ($check === false) {
+        $uploadOk = 0;
+        $message = "File is not an image.";
+    }
+    
+    // Check file size
+    if ($_FILES["profile_picture"]["size"] > 500000) {
+        $uploadOk = 0;
+        $message = "Sorry, your file is too large.";
+    }
+    
+    // Allow certain file formats
+    if (!in_array($imageFileType, ["jpg", "jpeg", "png", "gif"])) {
+        $uploadOk = 0;
+        $message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    }
+    
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        $message = "Sorry, your file was not uploaded.";
+    } else {
+        if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
+            $message = "The file ". htmlspecialchars($file_name). " has been uploaded.";
+        } else {
+            $message = "Sorry, there was an error uploading your file.";
+        }
+    }
+}
+
+// Update profile
+try {
     $sql = "UPDATE users SET username = ?, email = ?" . (!empty($profile_picture) ? ", profile_picture = ?" : "") . " WHERE user_id = ?";
     $stmt = $pdo->prepare($sql);
+    $params = [$username, $email];
     if (!empty($profile_picture)) {
-        $stmt->execute([$username, $email, $profile_picture, $user_id]);
-    } else {
-        $stmt->execute([$username, $email, $user_id]);
+        $params[] = $file_name; // Use unique file name
     }
-    
-    if ($stmt->rowCount()) {
+    $params[] = $user_id;
+
+    if ($stmt->execute($params)) {
         $_SESSION['username'] = $username;  // Update session variable
+        $_SESSION['profile_picture'] = $file_name; // Update session variable
         $message = "Profile updated successfully!";
     } else {
         $message = "Error updating profile.";
+    }
+} catch (PDOException $e) {
+    $message = "Update failed: " . $e->getMessage();
+}
+
+
+// Handle account deactivation
+if (isset($_POST['deactivate'])) {
+    try {
+        $sql = "DELETE FROM users WHERE user_id = ?";
+        $stmt = $pdo->prepare($sql);
+        if ($stmt->execute([$user_id])) {
+            session_destroy();
+            header("Location: login.php");
+            exit();
+        } else {
+            $message = "Error deactivating account.";
+        }
+    } catch (PDOException $e) {
+        $message = "Deactivation failed: " . $e->getMessage();
     }
 }
 ?>
@@ -101,7 +160,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
 
+            <label for="current_password">Current Password:</label>
+            <input type="password" id="current_password" name="current_password">
+
+            <label for="new_password">New Password:</label>
+            <input type="password" id="new_password" name="new_password">
+
+            <label for="confirm_password">Confirm New Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password">
+
             <button type="submit">Update Profile</button>
+        </form>
+
+        <form action="profile.php" method="POST" style="margin-top: 20px;">
+            <button type="submit" name="deactivate" class="deactivate-button">Deactivate Account</button>
         </form>
     </div>
 </div>
@@ -115,7 +187,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         padding: 20px;
         background-color: #fff;
         border-radius: 12px;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
     }
 
     .profile-header {
@@ -125,6 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     .profile-header h2 {
         color: #4CAF50;
+        font-size: 24px;
     }
 
     .profile-content {
@@ -148,55 +222,52 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     .profile-picture input[type="file"] {
         margin-top: 10px;
-        padding: 10px;
-        background-color: #4CAF50;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
     }
 
-    .profile-picture input[type="file"]:hover {
-        background-color: #45a049;
-    }
-
-    .profile-content label {
+    label {
         font-weight: bold;
-        color: #333;
+        margin-top: 10px;
+        display: block;
     }
 
-    .profile-content input[type="text"],
-    .profile-content input[type="email"] {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
         padding: 10px;
+        margin-top: 5px;
         border: 1px solid #ddd;
         border-radius: 4px;
-        width: 100%;
-        box-sizing: border-box;
     }
 
-    .profile-content button {
-        padding: 12px 24px;
+    button[type="submit"] {
         background-color: #4CAF50;
-        color: #fff;
+        color: white;
         border: none;
+        padding: 10px 20px;
+        text-transform: uppercase;
         border-radius: 4px;
         cursor: pointer;
-        transition: background-color 0.3s;
         font-size: 16px;
+        margin-top: 10px;
     }
 
-    .profile-content button:hover {
+    button[type="submit"]:hover {
         background-color: #45a049;
+    }
+
+    .deactivate-button {
+        background-color: #e74c3c;
+    }
+
+    .deactivate-button:hover {
+        background-color: #c0392b;
     }
 
     .message {
-        padding: 15px;
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        border-radius: 4px;
+        color: #e74c3c;
+        font-weight: bold;
+        text-align: center;
         margin-bottom: 20px;
-        font-size: 16px;
     }
 </style>

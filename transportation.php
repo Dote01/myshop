@@ -23,9 +23,8 @@ switch ($role_id) {
         $role_name = "Admin";
         break;
 }
-
 ?>
-
+<?php include 'dashboard_header.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,74 +47,7 @@ switch ($role_id) {
             min-height: 100vh;
         }
 
-        /* Header Styles */
-        header {
-            background: linear-gradient(to right, #4CAF50, #2e8b57);
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 2px solid #2e8b57;
-        }
-        .logo {
-            font-size: 1.8em;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 20px;
-        }
-        nav ul li {
-            position: relative;
-        }
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            transition: background-color 0.3s, color 0.3s;
-            display: block;
-            font-size: 16px;
-        }
-        nav ul li a:hover {
-            background-color: #45a049;
-            color: #fff;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            min-width: 220px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            border-radius: 8px;
-            overflow: hidden;
-            top: 100%;
-            left: 0;
-        }
-        .dropdown-content a {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.3s;
-        }
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
+       
         /* Dashboard Styles */
         .dashboard {
             flex: 1;
@@ -123,6 +55,7 @@ switch ($role_id) {
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #f2f4f7;
         }
         .dashboard-container {
             max-width: 960px;
@@ -162,6 +95,7 @@ switch ($role_id) {
             justify-content: center;
             gap: 20px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         .home-button {
             display: inline-block;
@@ -284,48 +218,49 @@ switch ($role_id) {
             background-color: #45a049;
         }
 
-        /* Additional Styles for Advanced Features */
-        .widget {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-            font-size: 16px;
-            text-align: center;
-            color: #333;
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .home-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .home-button {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .dashboard-summary {
+                flex-direction: column;
+            }
+            .summary-card {
+                width: 100%;
+            }
         }
-        .widget h4 {
-            font-size: 1.4em;
-            color: #4CAF50;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        .widget p {
-            margin-bottom: 10px;
-            font-size: 1.1em;
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.5em;
+            }
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav ul li {
+                margin-bottom: 10px;
+            }
+            .dashboard-container {
+                padding: 20px;
+            }
+            .dashboard-container h2 {
+                font-size: 1.8em;
+            }
+            .dashboard-container p {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">MyShop</div>
-        <nav>
-            <ul>
-                <li><a href="index.php">Home</a></li>
-                <li class="dropdown">
-                    <a href="#">Transport</a>
-                    <div class="dropdown-content">
-                        <a href="transportation.php">Transportation Management</a>
-                        <!-- Add other dropdown items as needed -->
-                    </div>
-                </li>
-                <li><a href="profile.php">Profile</a></li>
-                <li><a href="logout.php">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <div class="dashboard">
         <div class="dashboard-container">
             <h2>Transportation Management</h2>

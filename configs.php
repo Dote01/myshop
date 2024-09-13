@@ -1,25 +1,26 @@
 <?php
 $host = 'localhost';
-$db = 'myshop';
-$user = 'root';
-$pass = '';
+$db = 'myshop'; // Replace with your actual database name
+$user = 'root'; // Replace with your actual database user
+$pass = ''; // Replace with your actual database password
 $charset = 'utf8mb4';
 
-// Data Source Name (DSN) for PDO
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+// Define database connection constants
+define('DB_HOST', $host);
+define('DB_NAME', $db);
+define('DB_USER', $user);
+define('DB_PASSWORD', $pass);
 
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
-
-try {
-    // Creating a PDO instance
-    $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (PDOException $e) {
-    // Handle the error
-    echo 'Connection failed: ' . $e->getMessage();
-    exit();
+// Optional: Define DSN for PDO if needed
+if (!defined('DB_DSN')) {
+    define('DB_DSN', "mysql:host=$host;dbname=$db;charset=$charset");
 }
+function getDbConnection() {
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+    }
+    return $mysqli;
+}
+
 ?>

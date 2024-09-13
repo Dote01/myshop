@@ -5,8 +5,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales & Engagement Analysis</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Include external CSS for better organization -->
+    <title>Advanced Sales & Product Analysis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet/dist/leaflet.css">
     <style>
         /* General Styles */
         body {
@@ -17,62 +18,41 @@
             color: #333;
         }
 
-        /* Header Styles */
-        header {
-            background: linear-gradient(to right, #28a745, #218838);
-            color: #fff;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo img {
-            height: 60px;
-            transition: transform 0.3s;
-        }
-
-        .logo img:hover {
-            transform: scale(1.1);
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 20px;
-        }
-
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        nav ul li a:hover {
-            background-color: #218838;
-            color: #fff;
-        }
-
         /* Analysis Page Styles */
         .analysis-page-container {
-            padding: 30px;
+            padding: 20px;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             margin: 20px;
+            max-width: 100%;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .analysis-page-container h2 {
             margin-bottom: 20px;
             color: #28a745;
+            text-align: center;
+        }
+
+        .product-filter {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-filter label {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .product-filter select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
         }
 
         .chart-container {
@@ -81,158 +61,164 @@
 
         canvas {
             width: 100% !important;
-            height: 400px !important;
+            height: auto !important; /* Adjust height to auto for better responsiveness */
         }
 
-        .chart-controls {
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        /* Flexbox container to manage alignment */
+        .chart-controls, .filter-controls, .export-controls, .annotation-controls {
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
 
-        .chart-controls select {
+        .chart-controls label, .filter-controls label, .annotation-controls label {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .chart-controls select, .filter-controls input, .annotation-controls input, .export-controls button {
             padding: 10px;
             font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: #fff;
         }
     </style>
 </head>
 <body>
     <!-- Analysis Page Content -->
     <div class="analysis-page-container">
-        <h2>Sales & Engagement Analysis</h2>
-        
-        <div class="chart-controls">
-            <label for="chartType">Choose chart type:</label>
-            <select id="chartType">
-                <option value="line" selected>Line</option>
-                <option value="pie">Pie</option>
-                <option value="bar">Bar</option>
-                <option value="doughnut">Doughnut</option>
-                <option value="candlestick">Candlestick</option>
+        <h2>Advanced Sales & Product Analysis</h2>
+
+        <div class="product-filter">
+            <label for="productFilter">Select Product:</label>
+            <select id="productFilter">
+                <option value="AFYA" selected>AFYA</option>
+                <option value="JEMBE">JEMBE</option>
+                <option value="MO_ENERGY">MO ENERGY</option>
+                <option value="GBOOST">GBOOST</option>
+                <option value="AZAM_ENERGY">AZAM ENERGY</option>
+                <option value="COCACOLA">COCACOLA</option>
+                <option value="PEPSI">PEPSI</option>
+                <!-- Add other product options here -->
             </select>
         </div>
-        
+
+        <!-- Sales Chart -->
         <div class="chart-container">
+            <h3>Sales Chart</h3>
             <canvas id="salesChart"></canvas>
         </div>
-        
+
+        <!-- Engagement Chart -->
         <div class="chart-container">
+            <h3>Engagement Chart</h3>
             <canvas id="engagementChart"></canvas>
         </div>
-        
+
+        <!-- Orders Chart -->
         <div class="chart-container">
-            <canvas id="purchaseChart"></canvas>
+            <h3>Orders Chart</h3>
+            <canvas id="ordersChart"></canvas>
         </div>
+
+        <!-- Map for Regional Analysis -->
+        <div id="map"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@3.1.0/dist/chartjs-chart-financial.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <script>
-        // Chart data
-        const data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [{
-                label: 'Sales',
-                data: [1200, 1500, 1800, 1600, 1400, 1700, 2000],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const labels = ['January', 'February', 'March', 'April', 'May', 'June'];
+            let salesData = {
+                AFYA: [120, 150, 180, 130, 140, 170],
+                JEMBE: [100, 110, 150, 160, 145, 180],
+                MO_ENERGY: [90, 120, 130, 100, 110, 140],
+                GBOOST: [50, 60, 70, 80, 90, 100],
+                AZAM_ENERGY: [130, 140, 160, 170, 180, 190],
+                COCACOLA: [180, 190, 200, 210, 220, 230],
+                PEPSI: [160, 170, 190, 200, 210, 220]
+            };
 
-        const engagementData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [{
-                label: 'Engagement',
-                data: [300, 400, 500, 600, 700, 600, 500],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        };
+            let salesChart, engagementChart, ordersChart;
 
-        const purchaseData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [{
-                label: 'Purchases',
-                data: [800, 1000, 1200, 1300, 1200, 1100, 1400],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        // Common options for non-financial charts
-        const commonOptions = {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        };
-
-        // Financial chart options for candlestick
-        const candlestickOptions = {
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'month'
+            // Function to create charts
+            function createChart(ctx, label, data) {
+                return new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
                     }
-                },
-                y: {
-                    beginAtZero: true
-                }
+                });
             }
-        };
 
-        // Create charts with initial chart type
-        let chartType = 'line';
+            // Initialize charts with default product AFYA
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
 
-        let salesChart = new Chart(document.getElementById('salesChart').getContext('2d'), {
-            type: chartType,
-            data: data,
-            options: chartType === 'candlestick' ? candlestickOptions : commonOptions
-        });
+            salesChart = createChart(salesCtx, 'Sales for AFYA', salesData['AFYA']);
+            engagementChart = createChart(engagementCtx, 'Engagement for AFYA', salesData['AFYA']);
+            ordersChart = createChart(ordersCtx, 'Orders for AFYA', salesData['AFYA']);
 
-        let engagementChart = new Chart(document.getElementById('engagementChart').getContext('2d'), {
-            type: chartType,
-            data: engagementData,
-            options: chartType === 'candlestick' ? candlestickOptions : commonOptions
-        });
+            // Handle product filter change
+            document.getElementById('productFilter').addEventListener('change', function () {
+                const selectedProduct = this.value;
+                salesChart.data.datasets[0].data = salesData[selectedProduct];
+                salesChart.data.datasets[0].label = 'Sales for ' + selectedProduct;
+                salesChart.update();
 
-        let purchaseChart = new Chart(document.getElementById('purchaseChart').getContext('2d'), {
-            type: chartType,
-            data: purchaseData,
-            options: chartType === 'candlestick' ? candlestickOptions : commonOptions
-        });
+                engagementChart.data.datasets[0].data = salesData[selectedProduct];
+                engagementChart.data.datasets[0].label = 'Engagement for ' + selectedProduct;
+                engagementChart.update();
 
-        // Update charts based on selected chart type
-        document.getElementById('chartType').addEventListener('change', function() {
-            chartType = this.value;
-
-            // Destroy existing charts
-            salesChart.destroy();
-            engagementChart.destroy();
-            purchaseChart.destroy();
-
-            // Create new charts based on selected chart type
-            salesChart = new Chart(document.getElementById('salesChart').getContext('2d'), {
-                type: chartType,
-                data: data,
-                options: chartType === 'candlestick' ? candlestickOptions : commonOptions
+                ordersChart.data.datasets[0].data = salesData[selectedProduct];
+                ordersChart.data.datasets[0].label = 'Orders for ' + selectedProduct;
+                ordersChart.update();
             });
 
-            engagementChart = new Chart(document.getElementById('engagementChart').getContext('2d'), {
-                type: chartType,
-                data: engagementData,
-                options: chartType === 'candlestick' ? candlestickOptions : commonOptions
-            });
+            // Initialize the map for geographical analysis
+            const map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-            purchaseChart = new Chart(document.getElementById('purchaseChart').getContext('2d'), {
-                type: chartType,
-                data: purchaseData,
-                options: chartType === 'candlestick' ? candlestickOptions : commonOptions
+            const locations = [
+                { lat: 51.5, lng: -0.09, popup: 'Marker 1' },
+                { lat: 51.515, lng: -0.1, popup: 'Marker 2' },
+                { lat: 51.51, lng: -0.12, popup: 'Marker 3' }
+            ];
+
+            locations.forEach(location => {
+                L.marker([location.lat, location.lng]).addTo(map)
+                    .bindPopup(location.popup)
+                    .openPopup();
             });
         });
     </script>
 </body>
 </html>
+
+<?php include 'dashboard_footer.php'; ?>

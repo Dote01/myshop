@@ -12,13 +12,14 @@ $user_id = $_SESSION['user_id'];
 
 // Handle new discussion form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['post_discussion'])) {
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+    $topic = $_POST['topic'];
+    $retailer_id = $_POST['retailer_id']; // Assuming you have this in your form
+    $admin_id = $_POST['admin_id']; // Assuming you have this in your form
 
     // Prepare and execute the insertion query
-    $sql = "INSERT INTO discussions (user_id, title, content) VALUES (?, ?, ?)";
+    $sql = "INSERT INTO discussions (retailer_id, admin_id, topic) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iss", $user_id, $title, $content);
+    $stmt->bind_param("iis", $retailer_id, $admin_id, $topic);
 
     if ($stmt->execute()) {
         $message = "Discussion posted successfully!";
@@ -28,9 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['post_discussion'])) {
 }
 
 // Fetch discussions from the database
-$sql = "SELECT d.discussion_id, d.title, d.content, d.created_at, u.username 
+$sql = "SELECT d.discussion_id, d.topic, d.created_at, u.username 
         FROM discussions d 
-        JOIN users u ON d.user_id = u.user_id 
+        JOIN users u ON d.admin_id = u.user_id 
         ORDER BY d.created_at DESC";
 $discussions = $conn->query($sql);
 
@@ -38,6 +39,7 @@ $discussions = $conn->query($sql);
 if ($discussions === false) {
     $error_message = "Error fetching discussions: " . $conn->error;
 }
+
 ?>
 
 <?php include 'dashboard_header.php'; ?>

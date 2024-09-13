@@ -29,7 +29,7 @@ function fetchStockCapacity($conn, $retailer_id) {
         $stmt = $conn->prepare($sql);
 
         if ($stmt === false) {
-            die('Prepare failed: ' . htmlspecialchars($conn->error));
+            die('Prepare fail ed: ' . htmlspecialchars($conn->error));
         }
 
         $stmt->bind_param("iii", $retailer_id, $capacity['total_capacity'], $capacity['used_capacity']);
@@ -73,10 +73,10 @@ $result = $stmt->get_result();
 
     <!-- Filter by category -->
     <div class="category-filter">
-        <a href="stock_management.php?category=all" class="<?php echo $category === 'all' ? 'active' : ''; ?>">All</a>
-        <a href="stock_management.php?category=farm" class="<?php echo $category === 'farm' ? 'active' : ''; ?>">Farm</a>
-        <a href="stock_management.php?category=industry" class="<?php echo $category === 'industry' ? 'active' : ''; ?>">Industry</a>
-        <a href="stock_management.php?category=others" class="<?php echo $category === 'others' ? 'active' : ''; ?>">Others</a>
+        <a href="all.php?category=all" class="<?php echo $category === 'all' ? 'active' : ''; ?>">All</a>
+        <a href="farm_product.php" class="<?php echo $category === 'farm' ? 'active' : ''; ?>">Farm</a>
+        <a href="industrial_product.php" class="<?php echo $category === 'industrial' ? 'active' : ''; ?>">Industrial</a>
+        <a href="others.php?category=others" class="<?php echo $category === 'others' ? 'active' : ''; ?>">Others</a>
     </div>
 
     <h3>Your Products</h3>
@@ -102,33 +102,49 @@ $result = $stmt->get_result();
 
 <!-- Modals for Editing and Deleting -->
 <div id="edit-product-modal" class="modal">
-    <!-- Modal content for editing -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('edit-product-modal')">&times;</span>
+        <h2>Edit Product</h2>
+        <!-- Add your form or content for editing a product here -->
+    </div>
 </div>
 
 <div id="delete-product-modal" class="modal">
-    <!-- Modal content for deleting -->
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('delete-product-modal')">&times;</span>
+        <h2>Are you sure you want to delete this product?</h2>
+        <button id="confirm-delete" class="btn-delete-confirm">Yes, Delete</button>
+        <button class="btn-cancel" onclick="closeModal('delete-product-modal')">Cancel</button>
+    </div>
 </div>
 
 <script>
 // JavaScript functions for editing and deleting products
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
 function editProduct(productId) {
-    // Open edit modal or redirect to edit page
-    document.getElementById('edit-product-modal').style.display = 'block';
+    openModal('edit-product-modal');
     // Load edit form dynamically if needed
 }
 
 function deleteProduct(productId) {
-    if (confirm('Are you sure you want to delete this product?')) {
-        // Open delete modal or send AJAX request to delete the product
-        document.getElementById('delete-product-modal').style.display = 'block';
+    openModal('delete-product-modal');
+    document.getElementById('confirm-delete').onclick = function() {
         // Perform AJAX request to delete the product
+        closeModal('delete-product-modal');
     }
 }
 
-// Close modals
+// Close modals when clicking outside of them
 window.onclick = function(event) {
-    if (event.target == document.getElementById('edit-product-modal') || event.target == document.getElementById('delete-product-modal')) {
-        event.target.style.display = "none";
+    if (event.target.classList.contains('modal')) {
+        closeModal(event.target.id);
     }
 }
 </script>
@@ -137,6 +153,7 @@ window.onclick = function(event) {
 
 <!-- Add your CSS file or inline styles -->
 <style>
+/* Container Styles */
 .stock-management-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -144,6 +161,7 @@ window.onclick = function(event) {
     background-color: #f4f7f8;
 }
 
+/* Stock Capacity Styles */
 .stock-capacity {
     background-color: #ffffff;
     border-radius: 8px;
@@ -162,6 +180,7 @@ window.onclick = function(event) {
     color: #333;
 }
 
+/* Category Filter Styles */
 .category-filter {
     margin-bottom: 20px;
 }
@@ -181,6 +200,7 @@ window.onclick = function(event) {
     color: #0056b3;
 }
 
+/* Product List Styles */
 .product-list {
     display: flex;
     flex-wrap: wrap;
@@ -210,12 +230,13 @@ window.onclick = function(event) {
     margin: 10px 0;
 }
 
+/* Product Actions Styles */
 .product-actions {
     margin-top: 15px;
 }
 
 .product-actions .btn-edit, .product-actions .btn-delete {
-    background-color: #28a745;
+    background-color: #007bff;
     color: #ffffff;
     border: none;
     padding: 8px 12px;
@@ -227,7 +248,7 @@ window.onclick = function(event) {
 }
 
 .product-actions .btn-edit:hover {
-    background-color: #218838;
+    background-color: #0056b3;
 }
 
 .product-actions .btn-delete {
@@ -238,83 +259,68 @@ window.onclick = function(event) {
     background-color: #c82333;
 }
 
+/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
-    position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
     background-color: #ffffff;
-    margin: 15% auto;
+    margin: 10% auto;
     padding: 20px;
-    border-radius: 8px;
+    border: 1px solid #888;
     width: 80%;
     max-width: 600px;
+    border-radius: 8px;
 }
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-}
-
-.modal-close {
-    cursor: pointer;
-    font-size: 1.5em;
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
     font-weight: bold;
-}
-
-.modal-close:hover {
-    color: #dc3545;
-}
-
-.modal-body {
-    margin-top: 20px;
-}
-
-.modal-footer {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.modal-footer .btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
-    margin-left: 10px;
 }
 
-.modal-footer .btn-save {
-    background-color: #28a745;
-    color: #ffffff;
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
 }
 
-.modal-footer .btn-save:hover {
-    background-color: #218838;
-}
-
-.modal-footer .btn-cancel {
+/* Button Styles in Modal */
+.btn-delete-confirm {
     background-color: #dc3545;
     color: #ffffff;
 }
 
-.modal-footer .btn-cancel:hover {
+.btn-cancel {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.btn-delete-confirm, .btn-cancel {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-delete-confirm:hover {
     background-color: #c82333;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
 }
 </style>

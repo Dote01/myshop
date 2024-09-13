@@ -248,6 +248,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_product_id'])) {
         .btn-success:hover {
                 background-color: #26734d;
             }
+            /* Footer Styles */
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            position: relative;
+            border-top: 2px solid #4CAF50;
+        }
+        .footer-content {
+            padding: 0 20px;
+        }
+        .footer-content p {
+            margin: 10px 0;
+        }
+        .social-media a, .legal a, .quick-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 14px;
+        }
+        .social-media a:hover, .legal a:hover, .quick-links a:hover {
+            text-decoration: underline;
+        }
+        .newsletter form {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .newsletter input {
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            margin-right: 10px;
+            flex: 1;
+            font-size: 14px;
+        }
+        .newsletter button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .newsletter button:hover {
+            background-color: #45a049;
+        }
+
+        /* Additional Styles for Advanced Features */
+        .widget {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .chart-container {
+            margin-top: 20px;
+            position: relative;
+            height: 300px;
+        }
         </style>
     </head>
     <body>
@@ -300,4 +365,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_product_id'])) {
             </table>
         </div>
     </body>
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 MyShop. All rights reserved.</p>
+            <div class="social-media">
+                <a href="#">Facebook</a>
+                <a href="#">Twitter</a>
+                <a href="#">Instagram</a>
+            </div>
+            <div class="legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <div class="newsletter">
+                <form action="subscribe.php" method="POST">
+                    <input type="email" name="email" placeholder="Subscribe to our newsletter" required>
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </footer>
+
     </html>

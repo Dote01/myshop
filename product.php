@@ -30,8 +30,9 @@ if ($category_filter) {
     $params[] = $category_filter;
 }
 
-// Get total products count
-$stmt = $conn->prepare($sql);
+// Prepare statement for total products count
+$total_query = $sql;
+$stmt = $conn->prepare($total_query);
 if ($params) {
     $stmt->bind_param(str_repeat('s', count($params)), ...$params);
 }
@@ -59,10 +60,11 @@ function paginate($total, $current_page, $per_page) {
     $total_pages = ceil($total / $per_page);
     $pagination = '';
     for ($i = 1; $i <= $total_pages; $i++) {
-        $pagination .= "<a href='products.php?page=$i" . (isset($_GET['category']) ? "&category=" . $_GET['category'] : "") . "' class='page-button'>$i</a> ";
+        $pagination .= "<a href='products.php?page=$i" . (isset($_GET['category']) ? "&category=" . urlencode($_GET['category']) : "") . "' class='page-button'>$i</a> ";
     }
     return $pagination;
 }
+include 'dashboard_header.php';
 ?>
 
 <!DOCTYPE html>
@@ -222,16 +224,10 @@ function paginate($total, $current_page, $per_page) {
             position: relative;
             border-top: 2px solid #2e8b57;
         }
-
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">MyShop</div>
-        <form id="search-form" action="products.php" method="GET">
-            <input type="text" id="search-input" name="q" placeholder="Search products..." value="<?php echo htmlspecialchars($search_query); ?>">
-        </form>
-    </header>
+    
 
     <!-- Filters Section -->
     <div class="filters">

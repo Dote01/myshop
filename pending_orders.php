@@ -271,7 +271,7 @@ $query = "SELECT * FROM transportation_requests WHERE request_status = 'pending'
     <!-- Main Section -->
     <div class="dashboard">
         <div class="dashboard-container">
-            <h2>Pending Transportation Requests</h2>
+            <h2>Pending Orders</h2>
             <p>Here you can view and manage all pending transportation requests.</p>
             
             <!-- Pending Requests Table -->

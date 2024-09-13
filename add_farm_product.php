@@ -4,7 +4,7 @@ require_once 'config.php';
 
 // Check if user is a retailer
 if ($_SESSION['role'] !== 'retailer') {
-    header("Location: ../dashboard/dashboard.php");
+    header("Location: retailer_dashboard.php");
     exit();
 }
 

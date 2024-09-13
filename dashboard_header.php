@@ -1,6 +1,7 @@
 <?php
-
+// Ensure this is only called once across all your scripts
 require_once 'config.php';
+
 // Check if session variables are set to avoid accessing undefined indexes
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : null;
@@ -24,9 +25,10 @@ switch ($role_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $role_name; ?> Dashboard</title>
+    <title><?php echo htmlspecialchars($role_name); ?> Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Your CSS styles here */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #eaeaea;
@@ -281,7 +283,7 @@ switch ($role_id) {
 <body>
     <header>
         <div class="logo">
-            <h1>MyShop - <?php echo $role_name; ?> Dashboard</h1>
+            <h1>MyShop - <?php echo htmlspecialchars($role_name); ?> Dashboard</h1>
         </div>
         <nav>
             <ul>
@@ -297,48 +299,62 @@ switch ($role_id) {
                         <a href="stock_management.php">Stock Management</a>
                     </div>
                 </li>
-                <li><a href="profile.php"><i class="fas fa-user"></i> Profile</a></li>
-                <?php if ($role_id == 2): ?>
-                <?php elseif ($role_id == 3): ?>
-                    <li><a href="manage_users.php"><i class="fas fa-users-cog"></i> Manage Users</a></li>
-                <?php endif; ?>
-                <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-chart-line"></i> Overview</a>
+                    <div class="dropdown-menu">
+                        <a href="overview.php">General Overview</a>
+                        <a href="reports.php">Reports</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+                    <div class="dropdown-menu">
+                        <a href="profile.php">Profile</a>
+                        <a href="transaction.php">Transactions</a>
+                        <a href="customer_feedback.php">customer feedback</a>
+                        <a href="settings.php">System Settings</a>
+                        <a href="logout.php">Logout</a>
+                    </div>
             </ul>
         </nav>
     </header>
+
     <section class="dashboard">
-        <div class="dashboard-heading">Welcome to Your Dashboard</div>
+        <div class="dashboard-heading">Welcome, <?php echo htmlspecialchars($username); ?>!</div>
         <div class="dashboard-intro">
-            Here you can manage your activities, view reports, and more.
+            Here you can manage your account, view reports, and check out the latest updates.
         </div>
         <div class="tab-container">
-            <button class="tab-button" data-tab="tab1">Overview</button>
-            <button class="tab-button" data-tab="tab2">Reports</button>
-            <button class="tab-button" data-tab="tab3">Settings</button>
+            <button class="tab-button" onclick="openTab('tab1')">Analytics</button>
+            <button class="tab-button" onclick="openTab('tab2')">Reports</button>
+            <button class="tab-button" onclick="openTab('tab3')">User Management</button>
         </div>
-        <div class="tab-content" id="tab1">
-            <h2>Overview</h2>
-            <p>Here is an overview of your recent activities and updates.</p>
+        <div id="tab1" class="tab-content">
+            <h2>Analytics</h2>
+            <p>This section provides detailed analytics and insights.</p>
+            <!-- Link to analytics.php or similar -->
         </div>
-        <div class="tab-content" id="tab2">
+        <div id="tab2" class="tab-content">
             <h2>Reports</h2>
-            <p>Check out your detailed reports and analytics here.</p>
+            <p>This section contains various reports related to your account and activities.</p>
         </div>
-        <div class="tab-content" id="tab3">
-            <h2>Settings</h2>
-            <p>Manage your account settings and preferences here.</p>
+        <div id="tab3" class="tab-content">
+            <h2>User Management</h2>
+            <p>Manage user accounts and permissions here.</p>
         </div>
     </section>
+
     <script>
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.querySelector(`#${tabId}`).classList.add('active');
+        function openTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                if (tab.id === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
             });
-        });
+        }
     </script>
 </body>
 </html>

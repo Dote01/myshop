@@ -11,28 +11,52 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Fetch user settings
+$settings = [];
 $sql = "SELECT * FROM settings WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$settings = $result->fetch_assoc();
+while ($row = $result->fetch_assoc()) {
+    $settings[$row['setting_key']] = $row['setting_value'];
+}
+
+// Initialize variables
+$success_message = '';
+$error_message = '';
+$selected_setting = '';
+$setting_value = '';
 
 // Update user settings
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $setting_key = $_POST['setting_key'];
-    $setting_value = $_POST['setting_value'];
-    
-    // Update settings query
-    $sql = "UPDATE settings SET setting_value = ? WHERE user_id = ? AND setting_key = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sis", $setting_value, $user_id, $setting_key);
-    
-    if ($stmt->execute()) {
-        echo "<div class='success-message'>Settings updated successfully!</div>";
+    if (isset($_POST['setting_key']) && isset($_POST['setting_value'])) {
+        $setting_key = $_POST['setting_key'];
+        $setting_value = trim($_POST['setting_value']);
+        
+        if (!array_key_exists($setting_key, $settings)) {
+            $error_message = "Invalid setting key.";
+        } else {
+            // Update settings query
+            $sql = "UPDATE settings SET setting_value = ? WHERE user_id = ? AND setting_key = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sis", $setting_value, $user_id, $setting_key);
+            
+            if ($stmt->execute()) {
+                $success_message = "Settings updated successfully!";
+                $settings[$setting_key] = $setting_value; // Update the local settings array
+            } else {
+                $error_message = "Error updating settings. Please try again.";
+            }
+        }
     } else {
-        echo "<div class='error-message'>Error updating settings.</div>";
+        $error_message = "Required fields are missing.";
     }
+}
+
+// Set selected setting value for form
+if (isset($_POST['setting_key'])) {
+    $selected_setting = $_POST['setting_key'];
+    $setting_value = isset($settings[$selected_setting]) ? $settings[$selected_setting] : '';
 }
 ?>
 
@@ -45,6 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Settings</title>
     <style>
+        /* Your existing CSS styles */
+        
+        /* Your existing CSS styles */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f9f9f9;
@@ -135,19 +162,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <div class="settings-container">
     <h2>User Settings</h2>
+
+    <?php if ($success_message): ?>
+        <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+    <?php endif; ?>
+
+    <?php if ($error_message): ?>
+        <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+    <?php endif; ?>
+
     <form action="settings.php" method="POST" class="settings-form">
         <div class="form-group">
             <label for="setting_key">Select Setting:</label>
-            <select id="setting_key" name="setting_key">
-                <option value="email_notifications" <?php if ($settings['setting_key'] == 'email_notifications') echo 'selected'; ?>>Email Notifications</option>
-                <option value="sms_notifications" <?php if ($settings['setting_key'] == 'sms_notifications') echo 'selected'; ?>>SMS Notifications</option>
-                <option value="push_notifications" <?php if ($settings['setting_key'] == 'push_notifications') echo 'selected'; ?>>Push Notifications</option>
+            <select id="setting_key" name="setting_key" required>
+                <option value="" disabled selected>Select a setting</option>
+                <option value="email_notifications" <?php if ($selected_setting == 'email_notifications') echo 'selected'; ?>>Email Notifications</option>
+                <option value="sms_notifications" <?php if ($selected_setting == 'sms_notifications') echo 'selected'; ?>>SMS Notifications</option>
+                <option value="push_notifications" <?php if ($selected_setting == 'push_notifications') echo 'selected'; ?>>Push Notifications</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="setting_value">Enter Value:</label>
-            <input type="text" id="setting_value" name="setting_value" value="<?php echo htmlspecialchars($settings['setting_value']); ?>" required>
+            <input type="text" id="setting_value" name="setting_value" value="<?php echo htmlspecialchars($setting_value); ?>" required>
         </div>
 
         <button type="submit" class="btn-update">Update Settings</button>

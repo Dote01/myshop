@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 05, 2024 at 06:09 AM
+-- Generation Time: Sep 13, 2024 at 10:10 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,27 @@ SET time_zone = "+00:00";
 --
 -- Database: `myshop`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activity_log`
+--
+
+CREATE TABLE `activity_log` (
+  `id` int(11) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `activity` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `activity_log`
+--
+
+INSERT INTO `activity_log` (`id`, `date`, `activity`) VALUES
+(1, '2024-09-12 06:24:41', 'User logged in'),
+(2, '2024-09-12 06:24:41', 'User updated profile'),
+(3, '2024-09-12 06:24:41', 'Order placed');
 
 -- --------------------------------------------------------
 
@@ -108,11 +129,55 @@ CREATE TABLE `comments` (
 --
 
 INSERT INTO `comments` (`comment_id`, `discussion_id`, `user_id`, `content`, `created_at`) VALUES
-(1, 9, 52, 'fghh', '2024-09-04 19:37:18'),
-(2, 9, 52, 'fghh', '2024-09-04 19:39:53'),
-(3, 9, 52, 'a nnkx', '2024-09-04 19:40:04'),
-(4, 9, 52, 'a nnkx', '2024-09-04 19:40:21'),
-(5, 8, 52, 'hhe', '2024-09-04 19:40:36');
+(1, 10, 40, 'sgdf', '2024-09-11 16:49:27'),
+(2, 15, 41, 'wsafg', '2024-09-12 08:00:38'),
+(3, 15, 41, 'wsafg', '2024-09-12 08:00:59'),
+(4, 15, 41, 'wsafg', '2024-09-12 08:05:32'),
+(5, 6, 41, 'adfrs', '2024-09-12 08:05:50'),
+(6, 6, 41, 'adfrs', '2024-09-12 08:06:03'),
+(7, 6, 41, 'adfrs', '2024-09-12 08:09:32'),
+(8, 19, 41, 'dg', '2024-09-12 08:53:14'),
+(9, 19, 41, 'dg', '2024-09-12 08:53:30'),
+(10, 28, 41, 'aa', '2024-09-12 11:17:47'),
+(11, 28, 41, 'aa', '2024-09-12 11:17:51'),
+(12, 28, 41, 'qq', '2024-09-12 11:18:56'),
+(13, 28, 41, 'qq', '2024-09-12 11:25:27'),
+(14, 28, 41, 'aa', '2024-09-12 11:25:47'),
+(15, 27, 41, 'wozaa\r\n', '2024-09-12 11:30:05'),
+(16, 28, 41, 'aa', '2024-09-12 11:39:32'),
+(17, 28, 41, 'aa', '2024-09-12 11:41:18'),
+(18, 53, 41, 'medy', '2024-09-12 11:43:58'),
+(19, 55, 42, '111', '2024-09-12 12:44:18');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `comment_reactions`
+--
+
+CREATE TABLE `comment_reactions` (
+  `id` int(11) NOT NULL,
+  `comment_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `reaction_type` enum('like','dislike') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `comment_reactions`
+--
+
+INSERT INTO `comment_reactions` (`id`, `comment_id`, `user_id`, `reaction_type`) VALUES
+(1, 10, 41, 'like'),
+(2, 11, 41, 'like'),
+(3, 12, 41, 'like'),
+(4, 13, 41, 'like'),
+(5, 15, 41, 'like'),
+(6, 14, 41, 'like'),
+(7, 8, 41, 'like'),
+(8, 9, 41, 'like'),
+(9, 3, 41, 'like'),
+(10, 18, 41, 'like'),
+(11, 19, 42, 'like');
 
 -- --------------------------------------------------------
 
@@ -163,21 +228,20 @@ CREATE TABLE `discussionrooms` (
   `admin_id` int(11) DEFAULT NULL,
   `topic` varchar(150) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `status` enum('open','closed') DEFAULT 'open'
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `discussionrooms`
 --
 
-INSERT INTO `discussionrooms` (`discussion_id`, `retailer_id`, `admin_id`, `topic`, `created_at`, `updated_at`, `status`) VALUES
-(1, NULL, NULL, 'kwanin maji yanapanga', '2024-08-30 23:37:47', '2024-08-30 23:37:47', 'open'),
-(2, NULL, NULL, 'kwanin maji yanapanga', '2024-08-30 23:39:31', '2024-08-30 23:39:31', 'open'),
-(3, NULL, NULL, 'adf', '2024-08-30 23:43:30', '2024-08-30 23:43:30', 'open'),
-(4, NULL, NULL, 'adf', '2024-08-30 23:46:35', '2024-08-30 23:46:35', 'open'),
-(5, NULL, NULL, 'sd', '2024-08-30 23:47:00', '2024-08-30 23:47:00', 'open'),
-(6, NULL, NULL, 'adfg', '2024-08-30 23:48:12', '2024-08-30 23:48:12', 'open');
+INSERT INTO `discussionrooms` (`discussion_id`, `retailer_id`, `admin_id`, `topic`, `created_at`, `updated_at`) VALUES
+(1, NULL, NULL, 'kwanin maji yanapanga', '2024-08-30 23:37:47', '2024-08-30 23:37:47'),
+(2, NULL, NULL, 'kwanin maji yanapanga', '2024-08-30 23:39:31', '2024-08-30 23:39:31'),
+(3, NULL, NULL, 'adf', '2024-08-30 23:43:30', '2024-08-30 23:43:30'),
+(4, NULL, NULL, 'adf', '2024-08-30 23:46:35', '2024-08-30 23:46:35'),
+(5, NULL, NULL, 'sd', '2024-08-30 23:47:00', '2024-08-30 23:47:00'),
+(6, NULL, NULL, 'adfg', '2024-08-30 23:48:12', '2024-08-30 23:48:12');
 
 -- --------------------------------------------------------
 
@@ -190,35 +254,54 @@ CREATE TABLE `discussions` (
   `user_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
-  `status` enum('open','closed') DEFAULT 'open',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` varchar(50) DEFAULT NULL,
+  `retailer_id` int(11) DEFAULT NULL,
+  `admin_id` int(11) DEFAULT NULL,
+  `topic` varchar(255) DEFAULT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT 0,
+  `passcode` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `max_participants` int(11) DEFAULT 250
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `discussions`
 --
 
-INSERT INTO `discussions` (`discussion_id`, `user_id`, `title`, `content`, `status`, `created_at`) VALUES
-(1, 52, 'ggg', 'djdj', 'open', '2024-09-04 19:25:04'),
-(2, 52, 'aaa', 'aa', 'open', '2024-09-04 19:25:22'),
-(3, 52, 'ggg', 'djdj', 'open', '2024-09-04 19:25:32'),
-(4, 52, 'ssss', 'ss', 'open', '2024-09-04 19:25:52'),
-(5, 52, 'ssss', 'ss', 'open', '2024-09-04 19:26:06'),
-(6, 52, 'ssss', 'ss', 'open', '2024-09-04 19:32:43'),
-(7, 52, 'ssss', 'ss', 'open', '2024-09-04 19:32:44'),
-(8, 52, 'ssss', 'ss', 'open', '2024-09-04 19:34:36'),
-(9, 52, 'ssss', 'ss', 'open', '2024-09-04 19:37:09'),
-(10, 52, 'easdad', 'ad', 'open', '2024-09-04 19:47:36'),
-(11, 52, 's', 'sad', 'open', '2024-09-04 20:07:41'),
-(12, 52, 's', 'sad', 'open', '2024-09-04 20:07:54'),
-(13, 52, 's', 'sad', 'open', '2024-09-04 20:07:55'),
-(14, 52, 's', 'sad', 'open', '2024-09-04 20:07:56'),
-(15, 52, 's', 'sad', 'open', '2024-09-04 20:07:57'),
-(16, 52, 's', 'sad', 'open', '2024-09-04 20:10:50'),
-(17, 52, 's', 'sad', 'open', '2024-09-04 20:11:49'),
-(18, 52, 's', 'sad', 'open', '2024-09-04 20:13:29'),
-(19, 52, 's', 'sad', 'open', '2024-09-04 20:19:03'),
-(20, 53, 'dasdaada', 'ddad', 'open', '2024-09-04 22:29:28');
+INSERT INTO `discussions` (`discussion_id`, `user_id`, `title`, `content`, `created_at`, `status`, `retailer_id`, `admin_id`, `topic`, `is_private`, `passcode`, `description`, `created_by`, `max_participants`) VALUES
+(1, 40, '22', '22', '2024-09-11 16:42:05', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(2, 40, '22', '22', '2024-09-11 16:42:08', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(3, 40, '22', '22', '2024-09-11 16:45:18', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(4, 40, '22', '22', '2024-09-11 16:45:21', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(5, 40, '111', '11', '2024-09-11 16:45:46', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(6, 40, '111', '11', '2024-09-11 16:46:27', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(7, 40, '111', '11', '2024-09-11 16:46:32', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(8, 40, '111', '11', '2024-09-11 16:47:18', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(9, 40, '111', '11', '2024-09-11 16:47:56', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(10, 40, '111', '11', '2024-09-11 16:49:20', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(11, 40, 's', 's', '2024-09-11 16:49:39', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(12, 41, 'maji kupanda bei', 'kwanini imekuwa ghafra hivi', '2024-09-12 07:50:17', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(13, 41, 'maji kupanda bei', 'kwanini imekuwa ghafra hivi', '2024-09-12 07:56:08', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(14, 41, 'maji kupanda bei', 'kwanini imekuwa ghafra hivi', '2024-09-12 07:58:18', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(15, 41, 'maji kupanda bei', 'kwanini imekuwa ghafra hivi', '2024-09-12 08:00:29', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(16, 41, 'aa', 'ww', '2024-09-12 08:32:30', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(17, 41, 'aa', 'ww', '2024-09-12 08:32:38', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(18, 41, 'aa', 'ww', '2024-09-12 08:32:47', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(19, 41, 'aa', 'ww', '2024-09-12 08:32:55', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(20, 41, 'aa', 'ww', '2024-09-12 08:33:06', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(21, 41, 'wqe', 'wrt', '2024-09-12 08:52:51', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(22, 41, 'wqe', 'wrt', '2024-09-12 08:53:41', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(23, 41, 'wqe', 'wrt', '2024-09-12 08:53:48', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(24, 41, 'wqe', 'wrt', '2024-09-12 09:03:14', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(25, 41, 'wqe', 'wrt', '2024-09-12 09:03:27', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(26, 41, 'wqe', 'wrt', '2024-09-12 09:08:06', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(27, 41, 'wqe', 'wrt', '2024-09-12 09:08:16', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(28, 41, 'wqe', 'wrt', '2024-09-12 09:08:20', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(53, 41, 'medy bingwa', 'medy', '2024-09-12 11:43:52', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(54, 42, '11', '11', '2024-09-12 12:43:48', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250),
+(55, 42, '111', '11', '2024-09-12 12:44:12', 'open', NULL, NULL, NULL, 0, NULL, NULL, NULL, 250);
 
 -- --------------------------------------------------------
 
@@ -236,26 +319,35 @@ CREATE TABLE `discussion_participants` (
 --
 
 INSERT INTO `discussion_participants` (`discussion_id`, `user_id`) VALUES
-(1, 52),
-(3, 52),
-(4, 52),
-(5, 52),
-(5, 53),
-(6, 52),
-(7, 52),
-(8, 52),
-(9, 52),
-(10, 52),
-(11, 52),
-(12, 52),
-(13, 52),
-(14, 52),
-(15, 52),
-(16, 52),
-(17, 52),
-(18, 52),
-(19, 52),
-(20, 53);
+(1, 41),
+(6, 41),
+(9, 40),
+(9, 41),
+(10, 40),
+(10, 41),
+(11, 40),
+(11, 41),
+(12, 41),
+(13, 41),
+(14, 41),
+(15, 41),
+(16, 41),
+(17, 41),
+(18, 41),
+(19, 41),
+(20, 41),
+(21, 41),
+(22, 41),
+(23, 41),
+(24, 41),
+(25, 41),
+(26, 41),
+(27, 41),
+(28, 41),
+(53, 41),
+(53, 42),
+(54, 42),
+(55, 42);
 
 -- --------------------------------------------------------
 
@@ -285,17 +377,23 @@ CREATE TABLE `news` (
   `title` varchar(150) NOT NULL,
   `content` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `image` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `news`
 --
 
-INSERT INTO `news` (`news_id`, `admin_id`, `title`, `content`, `created_at`, `updated_at`) VALUES
-(1, 29, 'bbb', 'kkkk', '2024-08-30 21:00:00', '2024-08-31 03:17:20'),
-(2, 29, 'bbb', 'kkkk', '2024-08-30 21:00:00', '2024-08-31 03:17:41'),
-(3, 31, 'MMAHINDI', 'MAHINDI YAMEPANDA BEI KWA ASILIMA 13', '2024-09-01 21:00:00', '2024-09-02 17:57:55');
+INSERT INTO `news` (`news_id`, `admin_id`, `title`, `content`, `created_at`, `updated_at`, `image`) VALUES
+(5, NULL, 'AFYA COMPANY LIMITED', 'AFYA WAMETOA KINYAJI KIPYA KINACHOITWA JEMBE', '2024-09-12 07:26:37', '2024-09-12 07:26:37', 'AFYA.jpg'),
+(6, NULL, 'MO ENERGY', 'MELT COMPANY LIMITED wametoa toleo jipya la MO ENERG', '2024-09-12 07:36:45', '2024-09-12 07:36:45', 'download (1).jpg'),
+(7, NULL, 'GBOOST', 'GBOOST yawaacha watu midomo wazi', '2024-09-12 07:37:21', '2024-09-12 07:37:21', 'download (3).jpg'),
+(8, NULL, 'TURBO', 'TURBO imekuwa ikiuliziwa sana mtaani je maswali ni kwamba imeenda wapi?', '2024-09-12 07:38:17', '2024-09-12 07:38:17', 'download.jpg'),
+(9, NULL, 'AFYA COMPANY LIMITED', 'maji ya AFYA yamekuwa ni maji bora kwa sasa na kukubalika sana na  wanajamii wengiwa kitanzania', '2024-09-12 07:42:45', '2024-09-12 07:42:45', 'download (5).jpg'),
+(10, NULL, 'AFYA  COMPANY LIMITED', 'Maji ya afya yametoa toleo jipya la kinywaji chao', '2024-09-12 07:44:06', '2024-09-12 07:44:06', 'download (4).jpg'),
+(11, NULL, 'AFYA COMPAMY LIMITED', 'MAJI YA AFYA YAMEKUWA GUMZO MTAAANI', '2024-09-12 07:46:15', '2024-09-12 07:46:15', 'download (7).jpg'),
+(12, NULL, 'cocacola', 'cocacola imetoa toleo jipya', '2024-09-12 08:39:10', '2024-09-12 08:39:10', 'download (8).jpg');
 
 -- --------------------------------------------------------
 
@@ -341,7 +439,7 @@ CREATE TABLE `orders` (
   `product_id` int(11) DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `total_price` decimal(10,2) NOT NULL,
-  `status` varchar(50) NOT NULL DEFAULT 'Pending',
+  `status` varchar(50) DEFAULT 'Pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -394,7 +492,7 @@ CREATE TABLE `products` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `category_id` int(11) DEFAULT NULL,
-  `product_name` varchar(255) DEFAULT NULL
+  `product_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -425,35 +523,27 @@ CREATE TABLE `retailers` (
   `business_info` text DEFAULT NULL,
   `storage_capacity` int(11) DEFAULT 500,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `total_capacity` decimal(10,2) DEFAULT NULL
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `retailers`
 --
 
-INSERT INTO `retailers` (`retailer_id`, `user_id`, `business_name`, `business_info`, `storage_capacity`, `created_at`, `updated_at`, `total_capacity`) VALUES
-(1, 27, 'hussein\'s Business', NULL, 500, '2024-08-30 19:26:23', '2024-08-30 19:26:23', NULL),
-(2, 29, 'salim\'s Business', NULL, 500, '2024-08-30 19:54:00', '2024-08-30 19:54:00', NULL),
-(3, 32, 'MEXY\'s Business', NULL, 500, '2024-09-02 17:59:59', '2024-09-02 17:59:59', NULL),
-(4, 34, 'juma\'s Business', NULL, 500, '2024-09-02 19:45:28', '2024-09-02 19:45:28', NULL),
-(5, 35, 'ahmada\'s Business', NULL, 500, '2024-09-03 01:48:34', '2024-09-03 01:48:34', NULL),
-(6, 37, 'dodo\'s Business', NULL, 500, '2024-09-03 05:45:57', '2024-09-03 05:45:57', NULL),
-(7, 38, 'yuwena\'s Business', NULL, 500, '2024-09-03 08:13:18', '2024-09-03 08:13:18', NULL),
-(8, 40, 'jux\'s Business', NULL, 500, '2024-09-03 17:18:05', '2024-09-03 17:18:05', NULL),
-(9, 41, 'daudi\'s Business', NULL, 500, '2024-09-03 17:18:44', '2024-09-03 17:18:44', NULL),
-(10, 42, 'dadi\'s Business', NULL, 500, '2024-09-03 17:19:30', '2024-09-03 17:19:30', NULL),
-(11, 43, 'pati\'s Business', NULL, 500, '2024-09-03 17:22:11', '2024-09-03 17:22:11', NULL),
-(12, 44, 'shisha\'s Business', NULL, 500, '2024-09-03 17:23:08', '2024-09-03 17:23:08', NULL),
-(13, 45, 'kefa\'s Business', NULL, 500, '2024-09-03 17:25:44', '2024-09-03 17:25:44', NULL),
-(14, 47, 'go\'s Business', NULL, 500, '2024-09-03 17:27:35', '2024-09-03 17:27:35', NULL),
-(15, 48, 'har\'s Business', NULL, 500, '2024-09-03 17:46:31', '2024-09-03 17:46:31', NULL),
-(16, 49, 'a\'s Business', NULL, 500, '2024-09-03 17:47:24', '2024-09-03 17:47:24', NULL),
-(17, 50, 'bigi\'s Business', NULL, 500, '2024-09-03 19:16:06', '2024-09-03 19:16:06', NULL),
-(18, 51, 'bug\'s Business', NULL, 500, '2024-09-04 17:50:53', '2024-09-04 17:50:53', NULL),
-(19, 52, 'med\'s Business', NULL, 500, '2024-09-04 18:01:05', '2024-09-04 18:01:05', NULL),
-(20, 53, 'gigi\'s Business', NULL, 500, '2024-09-04 20:40:30', '2024-09-04 20:40:30', NULL);
+INSERT INTO `retailers` (`retailer_id`, `user_id`, `business_name`, `business_info`, `storage_capacity`, `created_at`, `updated_at`) VALUES
+(1, 27, 'hussein\'s Business', NULL, 500, '2024-08-30 19:26:23', '2024-08-30 19:26:23'),
+(2, 29, 'salim\'s Business', NULL, 500, '2024-08-30 19:54:00', '2024-08-30 19:54:00'),
+(3, 32, 'MEXY\'s Business', NULL, 500, '2024-09-02 17:59:59', '2024-09-02 17:59:59'),
+(4, 34, 'juma\'s Business', NULL, 500, '2024-09-02 19:45:28', '2024-09-02 19:45:28'),
+(5, 35, 'ahmada\'s Business', NULL, 500, '2024-09-03 01:48:34', '2024-09-03 01:48:34'),
+(6, 37, 'dodo\'s Business', NULL, 500, '2024-09-03 05:45:57', '2024-09-03 05:45:57'),
+(7, 38, 'yuwena\'s Business', NULL, 500, '2024-09-03 08:13:18', '2024-09-03 08:13:18'),
+(8, 39, 'sgr\'s Business', NULL, 500, '2024-09-09 13:23:00', '2024-09-09 13:23:00'),
+(9, 40, 'myshop\'s Business', NULL, 500, '2024-09-11 06:54:00', '2024-09-11 06:54:00'),
+(10, 41, 'mm\'s Business', NULL, 500, '2024-09-11 17:01:10', '2024-09-11 17:01:10'),
+(11, 42, 'kaka\'s Business', NULL, 500, '2024-09-12 12:29:29', '2024-09-12 12:29:29'),
+(12, 43, 'kayla\'s Business', NULL, 500, '2024-09-12 13:35:48', '2024-09-12 13:35:48'),
+(13, 44, 'm\'s Business', NULL, 500, '2024-09-13 05:51:07', '2024-09-13 05:51:07');
 
 -- --------------------------------------------------------
 
@@ -462,15 +552,21 @@ INSERT INTO `retailers` (`retailer_id`, `user_id`, `business_name`, `business_in
 --
 
 CREATE TABLE `retailer_stock` (
-  `stock_id` int(11) NOT NULL,
   `retailer_id` int(11) NOT NULL,
-  `product_id` int(11) NOT NULL,
-  `stock_quantity` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `total_capacity` int(11) DEFAULT 1000,
-  `used_capacity` int(11) DEFAULT 0
+  `total_capacity` int(11) NOT NULL,
+  `used_capacity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `retailer_stock`
+--
+
+INSERT INTO `retailer_stock` (`retailer_id`, `total_capacity`, `used_capacity`) VALUES
+(39, 1000, 0),
+(40, 1000, 0),
+(41, 1000, 0),
+(43, 1000, 0),
+(44, 1000, 0);
 
 -- --------------------------------------------------------
 
@@ -540,6 +636,31 @@ CREATE TABLE `settings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `transactions`
+--
+
+CREATE TABLE `transactions` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `action` enum('deposit','withdraw') NOT NULL,
+  `payment_method` varchar(50) NOT NULL,
+  `transaction_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','completed','failed') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `transactions`
+--
+
+INSERT INTO `transactions` (`id`, `user_id`, `amount`, `action`, `payment_method`, `transaction_date`, `status`) VALUES
+(1, 44, 1111.00, 'deposit', 'Mobile Payment', '2024-09-13 06:21:39', 'pending'),
+(2, 44, 11.00, 'deposit', 'Visa', '2024-09-13 06:21:50', 'pending'),
+(3, 44, 222.00, 'deposit', 'Visa', '2024-09-13 06:22:32', 'pending');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `transportation_requests`
 --
 
@@ -568,46 +689,51 @@ CREATE TABLE `users` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `two_factor_enabled` tinyint(1) DEFAULT 0,
   `two_factor_secret` varchar(255) DEFAULT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `balance` decimal(10,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role_id`, `created_at`, `updated_at`, `two_factor_enabled`, `two_factor_secret`, `profile_picture`) VALUES
-(19, 'mama', 'mama@gmail.com', 'mama@003', 1, '2024-08-30 18:44:24', '2024-08-30 18:44:24', 0, NULL, NULL),
-(20, 'ahmed003', 'ahmed003@gmail.com', 'ahmed003', 1, '2024-08-30 18:54:49', '2024-08-30 18:54:49', 0, NULL, NULL),
-(24, 'ahmed0031', 'ahmed0031@gmail.com', 'ahmed003', 1, '2024-08-30 18:58:30', '2024-08-30 18:58:30', 0, NULL, NULL),
-(25, 'ahmed0032', 'ahmed0032@gmail.com', 'ahmed0032', 1, '2024-08-30 18:59:55', '2024-08-30 18:59:55', 0, NULL, NULL),
-(26, 'ahmed0033', 'ahmed0033@gmail.com', '$2y$10$f.X8/qKgxCqqpTgi2/roPeWIgaONmKddfNEJQ8gJ4eHx8ABPf2jZK', 1, '2024-08-30 19:05:55', '2024-08-30 19:05:55', 0, NULL, NULL),
-(27, 'hussein', 'hussein@gmail.com', '$2y$10$s.F8sqyyIFfbqgnagBZPcO1w8PTNcmFN0Lvh.RndSbRWghhDpGh9q', 2, '2024-08-30 19:26:23', '2024-08-30 19:26:23', 0, NULL, NULL),
-(28, 'mohamed', 'mohamed@gmail.com', '$2y$10$vUubfHysy/ceVJZ4g307DuzDIrOHB4hADEdTHYR3k7VHXp6m9KG8C', 1, '2024-08-30 19:53:10', '2024-08-30 19:53:10', 0, NULL, NULL),
-(29, 'salim', 'salim@gmail.com', '$2y$10$gsSw.GRykFcS9XqLXx07H.nvsBkCzui7uMOvNr0yJ9mO76ymV4NVO', 2, '2024-08-30 19:54:00', '2024-08-31 03:26:41', 0, NULL, NULL),
-(30, 'saidi', 'saidi@gmail.com', '$2y$10$CZZ8KOWBDB.GWy/eMKF1R.bXHm5AEaEM0lUKeb4krFg3G8/R.q9PO', 1, '2024-08-31 00:47:28', '2024-08-31 00:47:28', 0, NULL, NULL),
-(31, 'ester', 'ester@gmail.com', '$2y$10$0sXTZnP6BujZzMCXn6K7xuBrjc8AL270vdabUNrEtOKpK93pArKLG', 1, '2024-08-31 04:49:02', '2024-08-31 04:49:02', 0, NULL, NULL),
-(32, 'MEXY', 'meshackemiliantemu@gmail.com', '$2y$10$lfCHihu/FEQbrkn5CUOzT.DTVmcjHG3iIxGNZGSwj5jHhHf2d4RzW', 2, '2024-09-02 17:59:59', '2024-09-02 17:59:59', 0, NULL, NULL),
-(33, 'kau', 'kau@gmail.com', '$2y$10$s/FOabvzl0NWqggo84rZk.i6vu7wSMzmYATAb1dyAO3AIbzRdNJPq', 1, '2024-09-02 18:26:41', '2024-09-02 18:26:41', 0, NULL, NULL),
-(34, 'juma', 'juma@gmail.com', '$2y$10$YoMUo.c8HnQiS6gGkxP/Ku/.GzEtLW5/8i9sk5PQ7DWIdyDGLmOmq', 2, '2024-09-02 19:45:28', '2024-09-02 19:45:28', 0, NULL, NULL),
-(35, 'ahmada', 'ahmada@gmail.com', '$2y$10$uyqQyM67nrDaTXFrHDUuquoiPzkOW9ohmoahRBpkgVKZSKYKVfwge', 2, '2024-09-03 01:48:34', '2024-09-03 01:48:34', 0, NULL, NULL),
-(36, 'yuyu', 'yuyu@gmail.com', '$2y$10$3Ldt62q2yq5WebI1rxYtSu/.BW9YAzu20LcFexizlcN5CnXgyulIy', 1, '2024-09-03 05:06:30', '2024-09-03 05:06:30', 0, NULL, NULL),
-(37, 'dodo', 'dodo@gmail.com', '$2y$10$L/H5iUOT1CkbmghJZuvsE.zfe.QSU4odC6T5pbzaJIA.vd9bbAjxG', 2, '2024-09-03 05:45:57', '2024-09-03 05:45:57', 0, NULL, NULL),
-(38, 'yuwena', 'yuwena@gmail.com', '$2y$10$FNgmAavxtfms1DJiRsy7i.VUk8XXGoFPEFUuxzgwtC4y8iZytXSjO', 2, '2024-09-03 08:13:18', '2024-09-03 08:27:11', 0, NULL, '3685.jpg'),
-(39, 'mbuzi', 'mbuzi@gmail.com', '$2y$10$rqrTVEcI.S24zwfnOoeIxORC65y3/WtgMTD3mc6ZE.7yVmCVm5dN6', 1, '2024-09-03 17:07:10', '2024-09-03 17:07:10', 0, NULL, NULL),
-(40, 'jux', 'jux@gmail.com', '$2y$10$ESwQkxmRLr6Y4UvCkOulGu3Jqi1s6WGq7JulwppAmEiTgiYfFw0kq', 2, '2024-09-03 17:18:05', '2024-09-03 17:18:05', 0, NULL, NULL),
-(41, 'daudi', 'dadi@gmail.com', '$2y$10$5yrLh41T45dgMEIdfEHaIe7eYkXhKQzTlLA.AeS6ouWsZZVgdrG/G', 2, '2024-09-03 17:18:44', '2024-09-03 17:18:44', 0, NULL, NULL),
-(42, 'dadi', 'dadii@gmail.com', '$2y$10$ruc4IMVAoLg1WerxjvX0ae5KempAFl6FhhedI.Cvz1hY4IS12IGWK', 2, '2024-09-03 17:19:30', '2024-09-03 17:19:30', 0, NULL, NULL),
-(43, 'pati', 'pati@gmai.com', '$2y$10$Fjan3jCbyvlVe8pYiT8RiORGAyLQ9vkDkPmVnq2.ct2V.MZJcmine', 2, '2024-09-03 17:22:11', '2024-09-03 17:22:11', 0, NULL, NULL),
-(44, 'shisha', 'shisha@gmail.com', '$2y$10$tNIFfuXydP1YfZAwmqcQ3evGktYQC.ejpx3akoD08/QjhEFY7kwAK', 2, '2024-09-03 17:23:08', '2024-09-03 17:23:08', 0, NULL, NULL),
-(45, 'kefa', 'kefa@gmail.com', '$2y$10$lB0AxUfaOmQIcO37/UtDCeMyx2ft1qVnrX9Lb4kzjzROxDkaRenBC', 2, '2024-09-03 17:25:44', '2024-09-03 17:25:44', 0, NULL, NULL),
-(46, 'dote', 'dote@gmail.com', '$2y$10$V7TujE1vJj1XPgDraJYAT.aw/dZjmg/zU3mBcOOhkIxs.NrDKeBbi', 1, '2024-09-03 17:26:35', '2024-09-03 17:26:35', 0, NULL, NULL),
-(47, 'go', 'go@gmail.com', '$2y$10$Y73yw6k1monxvGiQ0OznkONRlCtJ557D7UcHtGhxPPSpggIlhbi.6', 2, '2024-09-03 17:27:35', '2024-09-03 17:27:35', 0, NULL, NULL),
-(48, 'har', 'ha@gmail.com', '$2y$10$COtSQ2DcEXLzUcX36HbGiOeHynWAEJypV5N2a.yU8qEjEFDUPaEKm', 2, '2024-09-03 17:46:31', '2024-09-03 17:46:31', 0, NULL, NULL),
-(49, 'a', 'a@gmail.com', '$2y$10$ndgG7ahwUMs6pu31UyH9aOoD0jWiObhyLsSJy/asPSqjR7Y8va6uC', 2, '2024-09-03 17:47:24', '2024-09-03 17:47:24', 0, NULL, NULL),
-(50, 'bigi', 'mafolisa@gmail.com', '$2y$10$ccad91qVikUm0aaP8dySyODRpO8jqcTDXGAwdOOtS87201.P7/QHK', 2, '2024-09-03 19:16:06', '2024-09-03 19:16:06', 0, NULL, NULL),
-(51, 'bug', 'bug@gmail.com', '$2y$10$1chYViMsFIpvvf05wnWZgu86cUWcXAkAM68iJGPuzm4Zajq0tqZTq', 2, '2024-09-04 17:50:53', '2024-09-04 17:50:53', 0, NULL, NULL),
-(52, 'med', 'med@gmail.com', '$2y$10$hZvSes4NvjQOSeK9DP8i2O92KlFBPpJKZK5m8dHLUhBIqEGPeosHS', 2, '2024-09-04 18:01:05', '2024-09-04 18:01:05', 0, NULL, NULL),
-(53, 'gigi', 'g@gmail.com', '$2y$10$or7w6qYYT2GmQnhjng2lFOB9YUyCC0ADl6NgzUGPl86GKXmk8slsy', 2, '2024-09-04 20:40:30', '2024-09-04 20:40:30', 0, NULL, NULL);
+INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role_id`, `created_at`, `updated_at`, `two_factor_enabled`, `two_factor_secret`, `profile_picture`, `balance`) VALUES
+(19, 'mama', 'mama@gmail.com', 'mama@003', 1, '2024-08-30 18:44:24', '2024-08-30 18:44:24', 0, NULL, NULL, 0.00),
+(20, 'ahmed003', 'ahmed003@gmail.com', 'ahmed003', 1, '2024-08-30 18:54:49', '2024-08-30 18:54:49', 0, NULL, NULL, 0.00),
+(24, 'ahmed0031', 'ahmed0031@gmail.com', 'ahmed003', 1, '2024-08-30 18:58:30', '2024-08-30 18:58:30', 0, NULL, NULL, 0.00),
+(25, 'ahmed0032', 'ahmed0032@gmail.com', 'ahmed0032', 1, '2024-08-30 18:59:55', '2024-08-30 18:59:55', 0, NULL, NULL, 0.00),
+(26, 'ahmed0033', 'ahmed0033@gmail.com', '$2y$10$f.X8/qKgxCqqpTgi2/roPeWIgaONmKddfNEJQ8gJ4eHx8ABPf2jZK', 1, '2024-08-30 19:05:55', '2024-08-30 19:05:55', 0, NULL, NULL, 0.00),
+(27, 'hussein', 'hussein@gmail.com', '$2y$10$s.F8sqyyIFfbqgnagBZPcO1w8PTNcmFN0Lvh.RndSbRWghhDpGh9q', 2, '2024-08-30 19:26:23', '2024-08-30 19:26:23', 0, NULL, NULL, 0.00),
+(28, 'mohamed', 'mohamed@gmail.com', '$2y$10$vUubfHysy/ceVJZ4g307DuzDIrOHB4hADEdTHYR3k7VHXp6m9KG8C', 1, '2024-08-30 19:53:10', '2024-08-30 19:53:10', 0, NULL, NULL, 0.00),
+(29, 'salim', 'salim@gmail.com', '$2y$10$gsSw.GRykFcS9XqLXx07H.nvsBkCzui7uMOvNr0yJ9mO76ymV4NVO', 2, '2024-08-30 19:54:00', '2024-08-31 03:26:41', 0, NULL, NULL, 0.00),
+(30, 'saidi', 'saidi@gmail.com', '$2y$10$CZZ8KOWBDB.GWy/eMKF1R.bXHm5AEaEM0lUKeb4krFg3G8/R.q9PO', 1, '2024-08-31 00:47:28', '2024-08-31 00:47:28', 0, NULL, NULL, 0.00),
+(31, 'ester', 'ester@gmail.com', '$2y$10$0sXTZnP6BujZzMCXn6K7xuBrjc8AL270vdabUNrEtOKpK93pArKLG', 1, '2024-08-31 04:49:02', '2024-08-31 04:49:02', 0, NULL, NULL, 0.00),
+(32, 'MEXY', 'meshackemiliantemu@gmail.com', '$2y$10$lfCHihu/FEQbrkn5CUOzT.DTVmcjHG3iIxGNZGSwj5jHhHf2d4RzW', 2, '2024-09-02 17:59:59', '2024-09-02 17:59:59', 0, NULL, NULL, 0.00),
+(33, 'kau', 'kau@gmail.com', '$2y$10$s/FOabvzl0NWqggo84rZk.i6vu7wSMzmYATAb1dyAO3AIbzRdNJPq', 1, '2024-09-02 18:26:41', '2024-09-02 18:26:41', 0, NULL, NULL, 0.00),
+(34, 'juma', 'juma@gmail.com', '$2y$10$YoMUo.c8HnQiS6gGkxP/Ku/.GzEtLW5/8i9sk5PQ7DWIdyDGLmOmq', 2, '2024-09-02 19:45:28', '2024-09-02 19:45:28', 0, NULL, NULL, 0.00),
+(35, 'ahmada', 'ahmada@gmail.com', '$2y$10$uyqQyM67nrDaTXFrHDUuquoiPzkOW9ohmoahRBpkgVKZSKYKVfwge', 2, '2024-09-03 01:48:34', '2024-09-03 01:48:34', 0, NULL, NULL, 0.00),
+(36, 'yuyu', 'yuyu@gmail.com', '$2y$10$3Ldt62q2yq5WebI1rxYtSu/.BW9YAzu20LcFexizlcN5CnXgyulIy', 1, '2024-09-03 05:06:30', '2024-09-03 05:06:30', 0, NULL, NULL, 0.00),
+(37, 'dodo', 'dodo@gmail.com', '$2y$10$L/H5iUOT1CkbmghJZuvsE.zfe.QSU4odC6T5pbzaJIA.vd9bbAjxG', 2, '2024-09-03 05:45:57', '2024-09-03 05:45:57', 0, NULL, NULL, 0.00),
+(38, 'yuwena', 'yuwena@gmail.com', '$2y$10$FNgmAavxtfms1DJiRsy7i.VUk8XXGoFPEFUuxzgwtC4y8iZytXSjO', 2, '2024-09-03 08:13:18', '2024-09-03 08:27:11', 0, NULL, '3685.jpg', 0.00),
+(39, 'sgr', 'sgr@gmail.com', '$2y$10$8YdraWkZTgKVLcrCD.vMfOMrvUuHZQ8U7aE/YfibAEbhleChQlccK', 2, '2024-09-09 13:23:00', '2024-09-09 13:23:00', 0, NULL, NULL, 0.00),
+(40, 'myshop', 'myshop@gmail.com', '$2y$10$.sgINavUZhFrNoJDUGJhTOILFqLlCaeJK8yThatdZSDK4xDHaKvPO', 2, '2024-09-11 06:54:00', '2024-09-11 06:54:00', 0, NULL, NULL, 0.00),
+(41, 'mm', 'm@gmail.com', '$2y$10$fLYvKlEsIz5feqaLraRCt.S57SpqlaynlzlQFRW4sbYCWVnV1y1pO', 2, '2024-09-11 17:01:10', '2024-09-12 12:25:00', 0, NULL, NULL, 1054.00),
+(42, 'kaka', 'k@gmail.com', '$2y$10$EaY7raWLIfaQW5n9Laznh.QvVYmkNdi6a3X.SBUPAjmCMvs0fxt3u', 2, '2024-09-12 12:29:29', '2024-09-12 12:48:18', 0, NULL, 'download (8).jpg', 1555.00),
+(43, '', '', '$2y$10$gM3POrf5Fja6LW0Xwx7WQ.vxqy6c0Pix7BKJhavH3Vdtq5./mADqW', 2, '2024-09-12 13:35:48', '2024-09-12 14:52:09', 0, NULL, 'download (8).jpg', 222.00),
+(44, 'm', 'me@gmail.com', '$2y$10$9fYxE4KpRFw3uIrz9bpQCOOTimmzxDYuv7trUHFGSPnZ2Wx9pmwF6', 2, '2024-09-13 05:51:07', '2024-09-13 06:21:39', 0, NULL, NULL, 1111.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_preferences`
+--
+
+CREATE TABLE `user_preferences` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `country` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -643,6 +769,12 @@ CREATE TABLE `warehouses` (
 --
 
 --
+-- Indexes for table `activity_log`
+--
+ALTER TABLE `activity_log`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `ai_queries`
 --
 ALTER TABLE `ai_queries`
@@ -676,6 +808,14 @@ ALTER TABLE `categories`
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`comment_id`),
   ADD KEY `discussion_id` (`discussion_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `comment_reactions`
+--
+ALTER TABLE `comment_reactions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_reaction` (`comment_id`,`user_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
@@ -772,8 +912,7 @@ ALTER TABLE `privacy_settings`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`),
-  ADD KEY `retailer_id` (`retailer_id`),
-  ADD KEY `idx_category` (`category_id`);
+  ADD KEY `retailer_id` (`retailer_id`);
 
 --
 -- Indexes for table `product_requests`
@@ -794,9 +933,7 @@ ALTER TABLE `retailers`
 -- Indexes for table `retailer_stock`
 --
 ALTER TABLE `retailer_stock`
-  ADD PRIMARY KEY (`stock_id`),
-  ADD KEY `retailer_id` (`retailer_id`),
-  ADD KEY `product_id` (`product_id`);
+  ADD PRIMARY KEY (`retailer_id`);
 
 --
 -- Indexes for table `roles`
@@ -829,6 +966,13 @@ ALTER TABLE `settings`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `transactions`
+--
+ALTER TABLE `transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `transportation_requests`
 --
 ALTER TABLE `transportation_requests`
@@ -842,6 +986,12 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `email` (`email`),
   ADD KEY `role_id` (`role_id`);
+
+--
+-- Indexes for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `vehicles`
@@ -860,6 +1010,12 @@ ALTER TABLE `warehouses`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `activity_log`
+--
+ALTER TABLE `activity_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `ai_queries`
@@ -889,13 +1045,19 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `comment_reactions`
+--
+ALTER TABLE `comment_reactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `customer_feedback`
 --
 ALTER TABLE `customer_feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `discussionmessages`
@@ -913,7 +1075,7 @@ ALTER TABLE `discussionrooms`
 -- AUTO_INCREMENT for table `discussions`
 --
 ALTER TABLE `discussions`
-  MODIFY `discussion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `discussion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `email_preferences`
@@ -925,7 +1087,7 @@ ALTER TABLE `email_preferences`
 -- AUTO_INCREMENT for table `news`
 --
 ALTER TABLE `news`
-  MODIFY `news_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `news_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -961,7 +1123,7 @@ ALTER TABLE `privacy_settings`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_requests`
@@ -973,13 +1135,7 @@ ALTER TABLE `product_requests`
 -- AUTO_INCREMENT for table `retailers`
 --
 ALTER TABLE `retailers`
-  MODIFY `retailer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- AUTO_INCREMENT for table `retailer_stock`
---
-ALTER TABLE `retailer_stock`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `retailer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1006,6 +1162,12 @@ ALTER TABLE `settings`
   MODIFY `setting_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `transactions`
+--
+ALTER TABLE `transactions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `transportation_requests`
 --
 ALTER TABLE `transportation_requests`
@@ -1015,7 +1177,13 @@ ALTER TABLE `transportation_requests`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+
+--
+-- AUTO_INCREMENT for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `vehicles`
@@ -1060,10 +1228,18 @@ ALTER TABLE `comments`
   ADD CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
+-- Constraints for table `comment_reactions`
+--
+ALTER TABLE `comment_reactions`
+  ADD CONSTRAINT `comment_reactions_ibfk_1` FOREIGN KEY (`comment_id`) REFERENCES `comments` (`comment_id`),
+  ADD CONSTRAINT `comment_reactions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
 -- Constraints for table `customer_feedback`
 --
 ALTER TABLE `customer_feedback`
-  ADD CONSTRAINT `customer_feedback_ibfk_1` FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`);
+  ADD CONSTRAINT `customer_feedback_ibfk_1` FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`),
+  ADD CONSTRAINT `fk_retailer` FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`);
 
 --
 -- Constraints for table `discussionmessages`
@@ -1120,7 +1296,6 @@ ALTER TABLE `notifications_settings`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`);
 
@@ -1142,7 +1317,6 @@ ALTER TABLE `privacy_settings`
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
-  ADD CONSTRAINT `fk_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`),
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`);
 
 --
@@ -1157,13 +1331,6 @@ ALTER TABLE `product_requests`
 --
 ALTER TABLE `retailers`
   ADD CONSTRAINT `retailers_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
-
---
--- Constraints for table `retailer_stock`
---
-ALTER TABLE `retailer_stock`
-  ADD CONSTRAINT `retailer_stock_ibfk_1` FOREIGN KEY (`retailer_id`) REFERENCES `retailers` (`retailer_id`),
-  ADD CONSTRAINT `retailer_stock_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`);
 
 --
 -- Constraints for table `sales_forecasting`
@@ -1183,6 +1350,12 @@ ALTER TABLE `sessions`
 --
 ALTER TABLE `settings`
   ADD CONSTRAINT `settings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `transactions`
+--
+ALTER TABLE `transactions`
+  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `users`
